@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CUBITOS!!!!!</title>
+	
+	<style>
+		
+
+	</style>
+	
+  </head>
+  <body>
+  <p id="txt" style = "position: absolute; left: 0px; top: 1000px;">debug</p>
+  
+
+  
+  <button style="position: absolute; left: 900px; top: 10px;"  onclick="setMap()">START GAME</button>
+  <button style="position: absolute; left: 1200px; top: 10px;"  onclick="setCards()">CHANGE CARDS</button>
+  
+  <div id="map" style="position: absolute; left: 10px; top: 10px; width: 500px; height: 750px; background-color: red;"></div>
+  <div id="flag" style="position: absolute; left: 10px; top: 770px; width: 500px; height: 230px; background-color: red;"></div>
+  
+  <div id="hand" style="position: absolute; left: 525px; top: 600px; width: 1400px; height: 300px"></div>
+  <div id="drawzone" style = "position: absolute; left: 525px; top: 600px; width: 350px; height: 300px;" onclick="draw()"></div>
+  <div id="rollzone" style = "position: absolute; left: 875px; top: 600px; width: 350px; height: 300px;" onclick="roll()"></div>
+  <div id="activezone" style = "position: absolute; left: 1225px; top: 600px; width: 350px; height: 300px;"></div>
+  <div id="discardzone" style = "position: absolute; left: 1575px; top: 600px; width: 350px; height: 300px;" onclick="discard()"></div>
+  <div id="removed" style = "position: absolute; left: 2000px; top: 600px; width: 350px; height: 300px;"></div>
+  
+  <div style = "position: absolute; left: 1900px; top: 10px; width: 130px; height: 130px; background-image: url('https://i.ibb.co/bbgHb2b/greyDie.png')" onclick="addDie('lightgrey')"></div>
+  <div style = "position: absolute; left: 1900px; top: 150px; width: 130px; height: 130px; background-image: url('https://i.ibb.co/RcwY6rt/blackDie.png')" onclick="addDie('grey')"></div>
+  <div style = "position: absolute; left: 1900px; top: 300px; width: 130px; height: 130px; background-size: 130px; background-image: url('https://i.ibb.co/C7h0ZX4/startDie.png')" onclick="addDie('black')"></div>
+  
+  <div id="brown" style="position: absolute; left: 600px; top: 100px; width: 250px; height: 150px; background-color: brown" onclick="addDie('brown')"></div>
+  <div id="green" style="position: absolute; left: 900px; top: 100px; width: 250px; height: 150px; background-color: green" onclick="addDie('green')"></div>
+  <div id="red" style="position: absolute; left: 1200px; top: 100px; width: 250px; height: 150px; background-color: red" onclick="addDie('red')"></div>
+  <div id="blue" style="position: absolute; left: 1500px; top: 100px; width: 250px; height: 150px; background-color: blue" onclick="addDie('blue')"></div>
+  <div id="orange" style="position: absolute; left: 600px; top: 350px; width: 250px; height: 150px; background-color: orange" onclick="addDie('orange')"></div>
+  <div id="purple" style="position: absolute; left: 900px; top: 350px; width: 250px; height: 150px; background-color: purple" onclick="addDie('purple')"></div>
+  <div id="yellow" style="position: absolute; left: 1200px; top: 350px; width: 250px; height: 150px; background-color: yellow" onclick="addDie('yellow')"></div>
+  <div id="white" style="position: absolute; left: 1500px; top: 350px; width: 250px; height: 150px; background-color: white" onclick="addDie('white')"></div>
+
+
+  <div id="greenplayer" style = "position: absolute; left: 530px; top: 400px; width: 20px; height: 20px; background-color: green;" onclick="select(this, event)"></div>
+  <div id="redplayer" style = "position: absolute; left: 530px; top: 350px; width: 20px; height: 20px; background-color: red;" onclick="select(this, event)"></div>
+  <div id="blueplayer" style = "position: absolute; left: 530px; top: 450px; width: 20px; height: 20px; background-color: blue;" onclick="select(this, event)"></div>
+  <div id="yellowplayer" style = "position: absolute; left: 530px; top: 300px; width: 20px; height: 20px; background-color: yellow;" onclick="select(this, event)"></div>
+  
+  <div id="greenflagMark" style = "position: absolute; left: 20px; top: 850px; width: 20px; height: 20px; background-color: green;" onclick="select(this, event)"></div>
+  <div id="redflagMark" style = "position: absolute; left: 40px; top: 850px; width: 20px; height: 20px; background-color: red;" onclick="select(this, event)"></div>
+  <div id="blueflagMark" style = "position: absolute; left: 60px; top: 850px; width: 20px; height: 20px; background-color: blue;" onclick="select(this, event)"></div>
+  <div id="yellowflagMark" style = "position: absolute; left: 80px; top: 850px; width: 20px; height: 20px; background-color: yellow;" onclick="select(this, event)"></div>
+
+	<div id="money" style="position: absolute; left: 1300px; top: 920px; width: 50px; height: 50px; background-color: silver;">0</div>
+	<button onclick = "addMoney()" style="position: absolute; left: 1100px; top: 950px;">ADD MONEY</button>
+	<button onclick = "loseMoney()" style="position: absolute; left: 1200px; top: 950px;">LOSE MONEY</button>
+	
+   <script src="/socket.io/socket.io.js"></script>
+   
+   <script>
+	const txt = document.getElementById('txt');
+	var socket = io();
+	let sel = false;
+	
+	
+	function select(div){
+		sel = div.id;
+	}
+	
+	document.addEventListener('mousedown', function(event){
+		if (sel != false){
+			socket.emit('click', sel, event.clientX-10, event.clientY-10);
+		}
+	});
+	
+	socket.on('result', (divID, xpos, ypos)=>{
+		let div = document.getElementById(divID);
+		div.style.left = xpos+"px";
+		div.style.top = ypos+"px";
+		sel = false;
+	});
+	
+	function setMap(){
+		
+		socket.emit("mapSet");
+	}
+	
+	socket.on('mapSet', (map, flag, hand)=>{
+		document.getElementById("map").style.backgroundImage = map;
+		document.getElementById("flag").style.backgroundImage = flag;
+		document.getElementById("hand").style.backgroundImage = hand;
+	});
+	
+	
+	function setCards(){
+			socket.emit("setCards");
+	}
+	
+	socket.on('setCards', (brown, green, red, blue, orange, purple, yellow, white)=>{
+		document.getElementById("brown").style.backgroundImage = brown;
+		document.getElementById("green").style.backgroundImage = green;
+		document.getElementById("red").style.backgroundImage = red;
+		document.getElementById("blue").style.backgroundImage = blue;
+		document.getElementById("orange").style.backgroundImage = orange;
+		document.getElementById("purple").style.backgroundImage = purple;
+		document.getElementById("yellow").style.backgroundImage = yellow;
+		document.getElementById("white").style.backgroundImage = white;
+	});
+	
+	setMap();
+   </script>
+ 
+ <script>
+class Dice{
+	constructor(){
+		this.dice = [];
+		this.dieCount = 0;
+	}
+	addDie(color){
+		this.dice.push(new Die(color, this.dieCount));
+		this.dice[this.dieCount].gen();
+		this.dice[this.dieCount].giveSides();
+		document.getElementById(this.dieCount.toString()).addEventListener("mousedown", clickDie);
+		this.dieCount++;
+	}
+}
+
+
+class Die{
+	constructor(color, id){
+		this.sides;
+		this.activeSide;
+		this.color = color;
+		this.id = id.toString();
+	}
+	giveSides(){
+		switch(this.color){
+			case "lightgrey" : this.sides = ['url("https://i.ibb.co/vLwyrtX/1.png")',"","","","",""]; break;
+			case "grey" : this.sides = ['url("https://i.ibb.co/vLwyrtX/1.png")',"url('https://i.ibb.co/gP7WPY3/foot.png')","","","",""]; break;
+			case "brown" : this.sides = ['url(https://i.ibb.co/vJP0Y3y/brown.png")','url("https://i.ibb.co/nCmYQwL/3.png")',"","","",""]; break;
+			case "green" : this.sides = ['url("https://i.ibb.co/3vvSN32/greenX.png")','url("https://i.ibb.co/QJRQ9Sm/green.png")',"url('https://i.ibb.co/gP7WPY3/foot.png')","","",""]; break;
+			case "red" : this.sides = ['url("https://i.ibb.co/8zKfHgV/red.png")','url("https://i.ibb.co/09CDXXY/redX.png")',"","","",""]; break;
+			case "blue" : this.sides = ['url("https://i.ibb.co/TY8cH1h/blueX.png")','url("https://i.ibb.co/sQM62v4/blue.png")','url("https://i.ibb.co/YdzvLjR/2.png")',"","",""]; break;
+			case "orange" : this.sides = ['url("https://i.ibb.co/74sQPwJ/orangeX.png")','url(https://i.ibb.co/F4GP7gf/orange.png")',"","","",""]; break;
+			case "yellow" : this.sides = ['url("https://i.ibb.co/zH8h1D2/yellow.png")','url("https://i.ibb.co/WsqcWYn/yellowX.png")',"","","",""]; break;
+			case "purple" : this.sides = ['url("https://i.ibb.co/8XRkGwv/purple.png")',"","","","",""]; break;
+			case "white" : this.sides = ['url("https://i.ibb.co/P614cnf/white.png")',"url('https://i.ibb.co/gP7WPY3/foot.png')","url('https://i.ibb.co/gP7WPY3/foot.png')","","",""]; break;
+			case "black" : this.sides = ["url('https://i.ibb.co/gP7WPY3/foot.png')", 'url("https://i.ibb.co/YdzvLjR/2.png")', 'url("https://i.ibb.co/vLwyrtX/1.png")','','','']; break;
+		}
+	}
+	
+	gen(){
+		let die = document.createElement("div");
+		die.id = this.id;
+		die.style.float = "left";
+		die.style.width = "50px";
+		die.style.height = "50px";
+		die.style.border = "thick solid black"
+		die.style.backgroundColor = this.color;
+		if(this.color == "black"){die.style.color = "white"};
+		discardzone.appendChild(die);
+	}
+	
+	
+	
+	roll(){
+		this.activeSide = this.sides[Math.floor(Math.random()*6)];
+		document.getElementById(this.id).style.backgroundImage = this.activeSide;
+		if(this.activeSide != ""){
+			document.getElementById('activezone').appendChild(document.getElementById(this.id));
+		}
+	}
+	
+}
+
+
+const dice = new Dice();
+
+const drawzone = document.getElementById('drawzone');
+const rollzone = document.getElementById('rollzone');
+const activezone = document.getElementById('activezone');
+const discardzone = document.getElementById('discardzone');
+
+
+
+function addDie(color){
+	dice.addDie(color);
+}
+
+function draw(){
+	for(let die of dice.dice){
+		if(document.getElementById(die.id).parentNode.id != "rollzone" && document.getElementById(die.id).parentNode.id != "removed"){
+			drawzone.appendChild(document.getElementById(die.id));
+		}
+	}
+}
+
+function roll(){
+	for(let die of dice.dice){
+		if(document.getElementById(die.id).parentNode.id == "rollzone"){
+			die.roll();
+		}
+	}
+}
+
+function discard(){
+	for(let die of dice.dice){
+		if(document.getElementById(die.id).parentNode.id == "activezone"){
+			discardzone.appendChild(document.getElementById(die.id));
+		}
+	}
+}
+
+function clickDie(){
+	switch(this.parentNode.id){
+		case "drawzone": rollzone.appendChild(this); break;
+		case "rollzone": activezone.appendChild(this); break;
+		case "activezone": document.getElementById("removed").appendChild(this); break;
+		case "discardzone": drawzone.appendChild(this); break;
+	}
+}
+
+
+function addMoney(){
+	let div = document.getElementById('money');
+	div.innerHTML = parseInt(div.innerHTML)+1;
+}
+function loseMoney(){
+	let div = document.getElementById('money');
+	div.innerHTML = parseInt(div.innerHTML)-1;
+}
+	
+</script>	
+
+<script>
+function setHand(){
+	let x = 0;
+	while(x<7){addDie('lightgrey'); x++};
+	while(x<9){addDie('grey'); x++};
+}
+
+setHand();
+</script>
+
+
+	
+  </body>
+</html>
